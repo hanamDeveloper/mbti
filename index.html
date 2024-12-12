@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MBTI 테스트</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div id="question-container">
+      <h1 id="question-title"></h1>
+      <ul id="answer-list"></ul>
+    </div>
+    <div id="result-container" class="hidden">
+      <h2>당신의 MBTI 유형은?</h2>
+      <div id="result-mbti"></div>
+      <button id="retry-btn">다시하기</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { calculateMBTI } from './mbti.js';
+
+    const questions = [
+      {
+        disagree: "E",
+        agree: "I",
+        text: `다이어트는 주변인의 시선보다는 자기만족을 위해 하는 거라고 생각한다.`,
+      },
+      {
+        disagree: "S",
+        agree: "N",
+        text: `다이어트에 성공한 미래의 내 모습을 상상해보면 동기부여가 된다.`,
+      },
+      {
+        disagree: "T",
+        agree: "F",
+        text: `살쪘다고 고민하는 친구들을 보면 나만 그런 게 아니구나 싶어 위로가 된다.`,
+      },
+      {
+        disagree: "J",
+        agree: "P",
+        text: `다이어트 방법을 고를 때 선택지가 다양한 편이 좋다.`,
+      },
+      {
+        disagree: "E",
+        agree: "I",
+        text: `사람이 붐비는 맛집에 가는 것보다 집에서 배달 음식을 시켜먹는 게 좋다.`,
+      },
+      {
+        disagree: "S",
+        agree: "N",
+        text: `다이어트를 할 때 세세한 식단 계획은 별로 중요하지 않다고 생각한다.`,
+      },
+      {
+        disagree: "T",
+        agree: "F",
+        text: `다이어트 중이지만 지인이 음식을 권하면 미안한 마음에 거절하기가 어렵다.`,
+      },
+      {
+        disagree: "J",
+        agree: "P",
+        text: `그때그때 즉흥적으로 끌리는 메뉴를 선택해서 식사하는 게 좋다.`,
+      },
+    ];
+
+    const scoreMapping = {
+      "매우 아니다": -2,
+      "아니다": -1,
+      "보통이다": 0,
+      "그렇다": 1,
+      "매우 그렇다": 2,
+    };
+
+    let currentQuestionIndex = 0;
+    const answers = [];
+
+    const questionTitle = document.getElementById("question-title");
+    const answerList = document.getElementById("answer-list");
+    const resultContainer = document.getElementById("result-container");
+    const resultMbti = document.getElementById("result-mbti");
+    const retryBtn = document.getElementById("retry-btn");
+
+    const answerOptions = Object.keys(scoreMapping); 
+
+    function showQuestion(index) {
+      const question = questions[index];
+      questionTitle.textContent = question.text;
+
+      // 기존 답변 리스트 초기화
+      answerList.innerHTML = "";
+
+      // 답변 옵션 생성
+      answerOptions.forEach(optionText => {
+        const li = document.createElement("li");
+        li.classList.add("answer-item");
+        li.textContent = optionText;
+        li.addEventListener("click", () => selectAnswer(optionText));
+        answerList.appendChild(li);
+      });
+    }
+
+    function selectAnswer(answer) {
+      answers[currentQuestionIndex] = answer;
+      currentQuestionIndex++;
+
+      if (currentQuestionIndex < questions.length) {
+        showQuestion(currentQuestionIndex);
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      const mbtiType = calculateMBTI(answers);
+      resultMbti.textContent = mbtiType;
+      document.getElementById("question-container").classList.add("hidden");
+      resultContainer.classList.remove("hidden");
+    }
+
+    retryBtn.addEventListener("click", () => {
+      // 다시 시작
+      currentQuestionIndex = 0;
+      answers.length = 0;
+      resultContainer.classList.add("hidden");
+      document.getElementById("question-container").classList.remove("hidden");
+      showQuestion(currentQuestionIndex);
+    });
+
+    // 초기 첫 질문 표시
+    showQuestion(currentQuestionIndex);
+  </script>
+</body>
+</html>
